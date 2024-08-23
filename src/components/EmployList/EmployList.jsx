@@ -21,12 +21,33 @@ const EmployList = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [isOpen,setOpen] =useState(false) //add
   const [modalOpen, setModalOpen] = useState(false);//view
+  const [check,setCheck] = useState([])
+  const [selectedRole, setSelectedRole] = useState('allroles');
 
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      const allIds = list.map((object) => object.id);
+      setCheck(allIds);
+    } else {
+      setCheck([]);
+    }
+  };
+  const handleCheckboxChange = (id) => {
+    setCheck((prevSelectedIds) =>
+      prevSelectedIds.includes(id)
+        ? prevSelectedIds.filter((selectedId) => selectedId !== id)
+        : [...prevSelectedIds, id]
+    );
+  };
 
+  
+    const handleRoleChange = (event) => {
+      // setSelectedRole(event.target.value);
 
-  //final below view code
-
-
+      const selectedValue = event.target.value.toLowerCase(); // Normalize to lowercase
+    setSelectedRole(selectedValue);
+    };
+  
 
 
 
@@ -62,17 +83,6 @@ const EmployList = () => {
     window.open(url, '_blank');
   };
 
-  // const handleView = async (id) => {
-  //   // setSelectedId(id); // Set the ID of the object you want to view
-  //   try {
-  //     await getDoc(doc(db, "employees", id));
-  //     const viewObject = list.filter((object) => object.id === id);
-  //     setSelectedId(viewObject);
-  //   } catch (error) {
-  //     console.error("Error removing document: ", error);
-  //     alert("Dont Know");
-  //   }
-  // };
 
   const handleView = async (id) => {
     try {
@@ -120,11 +130,11 @@ const EmployList = () => {
     <div className="flex justify-between mx-5 my-7 border-b-2 ">
       <div>
       <input type="text" className="p-2 border border-gray-500 rounded-md my-2" placeholder="Search"/>
-      <select className="border border-gray-500 rounded-md p-2 ml-8">
-        <option value="">All Roles</option>
-        <option value="Front">Front</option>
-        <option value="Back">Back</option>
-        <option value="Full">Full</option>
+      <select className="border border-gray-500 rounded-md p-2 ml-8" onChange={handleRoleChange} value={selectedRole}>
+         <option value="allroles">All Roles</option> {/*//value="allroles" */}
+        <option value="front">Front</option>
+        <option value="back">Back</option>
+        <option value="full">Full</option>
       </select>
       </div>
       <div className="flex text-3xl gap-2 mt-5">
@@ -142,7 +152,7 @@ const EmployList = () => {
       <table className="w-full">
         <thead className="bg-gray-50 border-b-2 border-gray-200">
         <tr>
-          <th className="w-20 "><input type="checkbox" className="mt-2"/></th>
+          <th className="w-20 "><input type="checkbox" onChange={handleSelectAll} checked={check.length === list.length} className="mt-2"/></th>
           <th className="w-20 p-3 text-sm font-semibold tracking-wide text-center">Sr. No.</th>
           <th className="w-24 p-3 text-sm font-semibold tracking-wide text-center">Name</th>
           <th className="w-24 p-3 text-sm font-semibold tracking-wide text-center">Email</th>
@@ -153,9 +163,12 @@ const EmployList = () => {
         </tr>
         </thead>
         <tbody className="divide-y divide-gray-100 text-center">
-        {list.map((object,index) => (
+        {list.filter((item) =>
+              selectedRole === 'allroles' ? true : item.role.toLowerCase() === selectedRole
+            )
+        .map((object,index) => (
         <tr key={object.id} className="bg-white w-full">
-          <td className="w-20"><input type="checkbox" className="mt-2"/></td>
+          <td className="w-20"><input type="checkbox" checked={check.includes(object.id)} onChange={() => handleCheckboxChange(object.id)} className="mt-2"/></td>
           <td className="p-3 text-sm text-gray-700 whitespace-nowrap">
             <a href="#" className="font-bold text-blue-500 hover:underline">{index + 1}</a>
           </td>
